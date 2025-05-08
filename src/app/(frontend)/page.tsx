@@ -15,6 +15,18 @@ export default async function HomePage() {
 
   const fileURL = `vscode://file/${fileURLToPath(import.meta.url)}`
 
+  async function getServicos() {
+    const res = await fetch('http://localhost:3000/api/services', {
+      next: { revalidate: 60 }, // ISR: revalida a cada 60s
+    })
+    const data = await res.json()
+    console.log(data.docs)
+
+    return data.docs
+  }
+
+  const servicos = await getServicos()
+
   return (
     <div className="home">
       <div className="content">
@@ -29,6 +41,15 @@ export default async function HomePage() {
         </picture>
         {!user && <h1>Welcome to your new project.</h1>}
         {user && <h1>Welcome back, {user.email}</h1>}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {servicos.map((servico: any) => (
+            <div key={servico.id} className="p-4 border rounded">
+              <i className={servico.icone}></i>
+              <h2 className="text-xl font-bold">{servico.titulo}</h2>
+              <p>{servico.descricao}</p>
+            </div>
+          ))}
+        </div>
         <div className="links">
           <a
             className="admin"
